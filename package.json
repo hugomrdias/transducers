@@ -1,0 +1,31 @@
+{
+  "name": "transducers",
+  "version": "0.1.0",
+  "description": "An experimental implementationof Clojure's Transducers in JS",
+  "license": "MIT",
+  "repository": "hugomrdias/transducers",
+  "author": "Hugo Dias <mail@hugodias.me> (http://hugodias.me/)",
+  "keywords": [
+    "transducers",
+    "functional",
+    "clojure"
+  ],
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint --cache --fix index.js",
+    "release:patch": "npm version patch -m \"chore(release): Bump to %s\"",
+    "release:minor": "npm version minor -m \"chore(release): Bump to %s\"",
+    "release:major": "npm version major -m \"chore(release): Bump to %s\"",
+    "postversion": "git push --follow-tags"
+  },
+  "dependencies": {
+    "lodash": "3.10.1"
+  },
+  "devDependencies": {
+    "eslint": "1.10.3",
+    "eslint-config-halo": "0.1.4"
+  },
+  "eslintConfig": {
+    "extends": "halo"
+  }
+}
