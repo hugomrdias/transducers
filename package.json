@@ -1,6 +1,6 @@
 {
   "name": "transducers",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "An experimental implementationof Clojure's Transducers in JS",
   "license": "MIT",
   "repository": "hugomrdias/transducers",
