@@ -1,7 +1,7 @@
 'use strict';
 
 var Benchmark = require('benchmark');
-var t = require('./');
+var t = require('../');
 var _ = require('lodash');
 // var u = require('underscore');
 var suite = Benchmark.Suite('transducers');
@@ -10,8 +10,16 @@ function double(x) {
     return x * 2;
 }
 
+function inc(x) {
+    return x + 1;
+}
+
 function multipleOfFive(x) {
     return x % 5 === 0;
+}
+
+function even(x) {
+    return x % 2 === 0;
 }
 
 function baseline(arr, limit) {
@@ -43,35 +51,41 @@ function benchArray(n) {
     var arr = _.range(n);
 
     suite
-        .add(' (n=' + n + ') hand-rolled baseline', function() {
-            baseline(arr, 20);
-        })
+    // .add(' (n=' + n + ') hand-rolled baseline', function() {
+    //     baseline(arr, 20);
+    // })
         .add(' (n=' + n + ') native', function() {
             arr
+                .map(inc)
                 .map(double)
                 .filter(multipleOfFive)
-                .slice(0, 20);
+                .filter(even)
+                .slice(0, 100);
         })
         .add(' (n=' + n + ') _.map/filter', function() {
             _(arr)
+                .map(inc)
                 .map(double)
                 .filter(multipleOfFive)
-                .take(20)
+                .filter(even)
+                .take(100)
                 .value();
         })
         .add(' (n=' + n + ') t.map/filter+transduce', function() {
             t.seq(
                 t.compose(
+                    t.map(inc),
                     t.map(double),
                     t.filter(multipleOfFive),
-                    t.take(20)
+                    t.filter(even),
+                    t.take(100)
                 ),
                 arr
             );
         });
 }
 
-[1000].forEach(function(n) {
+[10000].forEach(function(n) {
     benchArray(n);
 });
 

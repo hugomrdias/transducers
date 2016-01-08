@@ -1,53 +1,15 @@
 'use strict';
-var _ = require('lodash');
 var transducers = {};
 
-function concat(a, b) {
-    var t = a.concat([b]);
-    return t;
-}
-
-function identity(x) {
-    return x;
-}
-
-function inc(x) {
-    return x + 1;
-}
-
-function greaterThanTwo(x) {
-    return (x > 2);
-}
-
-function lessThanThree(x) {
-    return (x < 4);
-}
-
-
-// var filterLessThanThreeAndIncrement = _.flowRight(
-//     take(1),
-//     mapping(inc),
-//     filtering(lessThanThree)
-// );
-
-
-/* var result = [1,2,3,4].reduce(
-  filterLessThanThreeAndIncrement(function (result, input) {
-    result[input] = true;
-    log(result);
-    return result;
-  }), {});*/
-
-// var result = [1, 2, 3, 4, 5, 6].reduce(
-//     filterLessThanThreeAndIncrement(concat), []);
-
 function Reduced(value) {
+    // console.log('Reduced');
     this.reduced = true;
     this.value = value;
 }
 
 function isReduced(x) {
     return (x instanceof Reduced) || (x && x.reduced);
+    // return (x && x.reduced);
 }
 
 function deref(x) {
@@ -61,9 +23,8 @@ function deref(x) {
 function ensureReduced(val) {
     if (isReduced(val)) {
         return val;
-    } else {
-        return new Reduced(val);
     }
+    return new Reduced(val);
 }
 
 /**
@@ -104,17 +65,21 @@ transducers.compose = function compose() {
 };
 
 transducers.take = function take(n) {
+    var count = 0;
+
     return function(reduce) {
         return function(result, input) {
             // console.log('taking: ' + input);
-            if (n > 0) {
+            if (count === n) {
+                result = ensureReduced(result);
+                // if (n - 1 === 0) {
+                //     // console.log('DONE')
+                //     result = ensureReduced(result);
+                // }
+            } else {
                 result = reduce(result, input);
-                if (n - 1 === 0) {
-                    // console.log('DONE')
-                    result = ensureReduced(result);
-                }
             }
-            n--;
+            count++;
             return result;
         };
     };
@@ -133,13 +98,17 @@ transducers.filter = function filtering(f) {
     return function(reduce) {
         return function(result, input) {
             // console.log('filtering ' + f(input))
-            return (f(input) ? reduce(result, input) : result);
+            if (f(input)) {
+                return reduce(result, input);
+            }
+            return result;
         };
     };
 };
 
 function append(result, x) {
-    return result.concat(x);
+    result.push(x);
+    return result;
 }
 
 transducers.seq = function seq(xf, coll) {
@@ -148,9 +117,11 @@ transducers.seq = function seq(xf, coll) {
 
 transducers.reduce = function reduce(xf, init, coll) {
     var acc = init;
-    for (var i = 0; i < coll.length; i++) {
-        // console.log('Reducing :', i + 1);
-        acc = xf(acc, coll[i]);
+    var index = -1;
+    var len = coll.length;
+
+    while (++index < len) {
+        acc = xf(acc, coll[index]);
         if (isReduced(acc)) {
             acc = deref(acc);
             break;
@@ -164,27 +135,26 @@ transducers.transduce = function transduce(xf, f, init, coll) {
 };
 
 module.exports = transducers;
-require('console2')();
 
+// function inc(x) {
+//     return x + 1;
+// }
 
-function inc(x) {
-    return x + 1;
-}
+// function square(x) {
+//     return x * x;
+// }
 
-function square(x) {
-    return x * x;
-}
-
-var t = transducers;
-var comp = t.compose(
-    t.filter(function(x) {
-        return x % 2 === 0
-    }),
-    t.map(inc),
-    t.map(square),
-    t.take(4)
-);
-console.spacer().time('trans');
-console.log(t.seq(comp, t.range(10000)));
-console.spacer().time('trans');
-console.out();
+// var t = transducers;
+// var comp = t.compose(
+//     t.map(inc),
+//     t.map(square),
+//     t.filter(function(x) {
+//         return x % 2 === 0
+//     })
+//     // t.take(100)
+// );
+// require('console2')();
+// console.spacer().time('trans');
+// t.seq(comp, t.range(100000));
+// console.spacer().time('trans');
+// console.out();
