@@ -25,7 +25,7 @@ test('test seq', function(test) {
 test('test range', function(test) {
     test.plan(1);
 
-    test.same(t.range(2), [0, 1]);
+    test.same(t.range(3), [0, 1, 2]);
 });
 
 test('test compose', function(test) {
