@@ -31,13 +31,7 @@ function take(n) {
     };
 }
 
-function mapping(transform) {
-    return function(reduce) {
-        return function(result, input) {
-            return reduce(result, transform(input));
-        };
-    };
-}
+
 
 function filtering(predicate) {
     return function(reduce) {
@@ -47,11 +41,12 @@ function filtering(predicate) {
     };
 }
 
-var filterLessThanThreeAndIncrement = _.flowRight(
-    take(1),
-    mapping(inc),
-    filtering(lessThanThree)
-);
+// var filterLessThanThreeAndIncrement = _.flowRight(
+//     take(1),
+//     mapping(inc),
+//     filtering(lessThanThree)
+// );
+
 
 /* var result = [1,2,3,4].reduce(
   filterLessThanThreeAndIncrement(function (result, input) {
@@ -85,6 +80,34 @@ transducers.compose = function compose() {
         }
         return value;
     };
+};
+
+transducers.map = function mapping(f) {
+    return function(reduce) {
+        return function(result, input) {
+            return reduce(result, f(input));
+        };
+    };
+};
+
+transducers.filter = function filtering(f) {
+    return function(reduce) {
+        return function(result, input) {
+            return (f(input) ? reduce(result, input) : result);
+        };
+    };
+};
+
+function append(result, x) {
+    return result.concat(x);
+}
+
+transducers.seq = function seq(xf, coll) {
+    return transducers.transduce(xf, append, [], coll);
+};
+
+transducers.transduce = function transduce(xf, f, init, coll) {
+    return coll.reduce(xf(f), init);
 };
 
 module.exports = transducers;

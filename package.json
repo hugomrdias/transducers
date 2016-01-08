@@ -23,7 +23,8 @@
   },
   "devDependencies": {
     "eslint": "1.10.3",
-    "eslint-config-halo": "0.1.4"
+    "eslint-config-halo": "0.1.4",
+    "tape": "4.4.0"
   },
   "eslintConfig": {
     "extends": "halo"
